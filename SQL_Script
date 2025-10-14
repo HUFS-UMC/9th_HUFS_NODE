@@ -1,0 +1,281 @@
+USE umc_db;
+
+CREATE TABLE user (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(20) NOT NULL,
+    pw VARCHAR(20) NOT NULL,
+    status VARCHAR(10) NULL,
+    point INT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    inactive_date DATETIME(6) NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE user_info (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL UNIQUE,
+    profile_picture_url VARCHAR(255) NOT NULL,
+    email VARCHAR(20) NOT NULL,
+    locate VARCHAR(20) NOT NULL,
+    gender SMALLINT NOT NULL,
+    birth VARCHAR(20) NOT NULL,
+    phone_num VARCHAR(20) NOT NULL,
+    phone_num_certificated BOOLEAN NOT NULL,
+    nickname VARCHAR(50) NULL DEFAULT 'NICKNAME123',
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id)
+);
+
+CREATE TABLE user_token (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    access_token VARCHAR(255) NOT NULL,
+    refresh_token VARCHAR(255) NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    category VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id)
+);
+
+CREATE TABLE term (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    term_url VARCHAR(255) NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    essential BOOLEAN NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE user_term (
+    user_id BIGINT NOT NULL,
+    term_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    agreed BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id)
+        REFERENCES user (id),
+    FOREIGN KEY (term_id)
+        REFERENCES term (id)
+);
+
+CREATE TABLE food_category (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE region (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(20) NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE store (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    region_id BIGINT NOT NULL,
+    food_category_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    FOREIGN KEY (region_id)
+        REFERENCES region (id),
+    FOREIGN KEY (food_category_id)
+        REFERENCES food_category (id)
+);
+
+CREATE TABLE store_picture (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    store_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    FOREIGN KEY (store_id)
+        REFERENCES store (id)
+);
+
+CREATE TABLE prefer_food (
+    user_id BIGINT NOT NULL,
+    food_category_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id),
+    FOREIGN KEY (food_category_id)
+        REFERENCES food_category (id)
+);
+
+CREATE TABLE mission (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    store_id BIGINT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    payment INT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    point INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (store_id)
+        REFERENCES store (id)
+);
+
+CREATE TABLE user_mission (
+    user_id BIGINT NOT NULL,
+    mission_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    is_completed BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id)
+        REFERENCES user (id),
+    FOREIGN KEY (mission_id)
+        REFERENCES mission (id)
+);
+
+CREATE TABLE review (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    store_id BIGINT NOT NULL,
+    score INT NOT NULL,
+    text TEXT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id),
+    FOREIGN KEY (store_id)
+        REFERENCES store (id)
+);
+
+CREATE TABLE user_review (
+    user_id BIGINT NOT NULL,
+    review_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id),
+    FOREIGN KEY (review_id)
+        REFERENCES review (id)
+);
+
+CREATE TABLE inquiry (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    title VARCHAR(50) NOT NULL,
+    text TEXT NOT NULL,
+    is_completed BOOLEAN NOT NULL,
+    type TINYINT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id)
+);
+
+CREATE TABLE inquiry_picture (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    inquiry_id BIGINT NOT NULL,
+    picture VARCHAR(255) NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    FOREIGN KEY (inquiry_id)
+        REFERENCES inquiry (id)
+);
+
+CREATE TABLE mission_inquiry (
+    inquiry_id BIGINT NOT NULL,
+    mission_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (inquiry_id)
+        REFERENCES inquiry (id),
+    FOREIGN KEY (mission_id)
+        REFERENCES mission (id)
+);
+
+CREATE TABLE review_inquiry (
+    inquiry_id BIGINT NOT NULL,
+    review_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (inquiry_id)
+        REFERENCES inquiry (id),
+    FOREIGN KEY (review_id)
+        REFERENCES review (id)
+);
+
+CREATE TABLE event_inquiry (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    inquiry_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    FOREIGN KEY (inquiry_id)
+        REFERENCES inquiry (id)
+);
+
+CREATE TABLE alert (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE user_alert (
+    user_id BIGINT NOT NULL,
+    alert_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (user_id)
+        REFERENCES user (id),
+    FOREIGN KEY (alert_id)
+        REFERENCES alert (id)
+);
+
+CREATE TABLE mission_alert (
+    alert_id BIGINT NOT NULL,
+    mission_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (alert_id)
+        REFERENCES alert (id),
+    FOREIGN KEY (mission_id)
+        REFERENCES mission (id)
+);
+
+CREATE TABLE review_alert (
+    alert_id BIGINT NOT NULL,
+    review_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (alert_id)
+        REFERENCES alert (id),
+    FOREIGN KEY (review_id)
+        REFERENCES review (id)
+);
+
+CREATE TABLE event_alert (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    alert_id BIGINT NOT NULL,
+    created_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_time DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (alert_id)
+        REFERENCES alert (id),
+    PRIMARY KEY (id)
+);
+
+
+
+
+
