@@ -1,2 +1,8 @@
-.env
 /src/generated/prisma
+
+# dependency directories
+node_modules/
+
+# dotenv environment variable files
+.env
+.env.*
