@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+model User {
+  id      Int @id @default(autoincrement())
+  name    String
+  reviews Review[]
+  missions UserMission[]
+}
+
+model Store {
+  id       Int @id @default(autoincrement())
+  name     String
+  missions Mission[]
+}
+
+model Review {
+  id      Int @id @default(autoincrement())
+  userId  Int
+  storeId Int
+  content String
+  user    User  @relation(fields: [userId], references: [id])
+  store   Store @relation(fields: [storeId], references: [id])
+}
+
+model Mission {
+  id       Int @id @default(autoincrement())
+  storeId  Int
+  title    String
+  store    Store @relation(fields: [storeId], references: [id])
+  users    UserMission[]
+}
+
+model UserMission {
+  id        Int @id @default(autoincrement())
+  userId    Int
+  missionId Int
+  status    String @default("ONGOING")
+  user      User @relation(fields: [userId], references: [id])
+  mission   Mission @relation(fields: [missionId], references: [id])
+}
+
