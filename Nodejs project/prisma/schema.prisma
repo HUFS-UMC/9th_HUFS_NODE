@@ -1,0 +1,327 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model alert {
+  id           BigInt         @id @default(autoincrement())
+  created_time DateTime       @default(now()) @db.DateTime(6)
+  updated_time DateTime       @default(now()) @db.DateTime(6)
+  eventalert   eventalert?
+  missionalert missionalert[]
+  reviewalert  reviewalert[]
+  useralert    useralert[]
+}
+
+model eventalert {
+  id           BigInt   @id @default(autoincrement())
+  alert_id     BigInt   @unique(map: "EventAlert_alert_id_key")
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  alert        alert    @relation(fields: [alert_id], references: [id], map: "EventAlert_alert_id_fkey")
+}
+
+model eventinquiry {
+  id           BigInt   @id @default(autoincrement())
+  inquiry_id   BigInt   @unique(map: "EventInquiry_inquiry_id_key")
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  inquiry      inquiry  @relation(fields: [inquiry_id], references: [id], map: "EventInquiry_inquiry_id_fkey")
+}
+
+model foodcategory {
+  id           BigInt       @id @default(autoincrement())
+  name         String       @db.VarChar(50)
+  created_time DateTime     @default(now()) @db.DateTime(6)
+  updated_time DateTime     @default(now()) @db.DateTime(6)
+  preferfood   preferfood[]
+  store        store[]
+}
+
+model inquiry {
+  id             BigInt           @id @default(autoincrement())
+  user_id        BigInt
+  title          String           @db.VarChar(50)
+  text           String
+  is_completed   Boolean
+  type           Int
+  created_time   DateTime         @default(now()) @db.DateTime(6)
+  updated_time   DateTime         @default(now()) @db.DateTime(6)
+  eventinquiry   eventinquiry?
+  user           user             @relation(fields: [user_id], references: [id], map: "Inquiry_user_id_fkey")
+  inquirypicture inquirypicture[]
+  missioninquiry missioninquiry[]
+  reviewinquiry  reviewinquiry[]
+
+  @@index([user_id], map: "Inquiry_user_id_fkey")
+}
+
+model inquirypicture {
+  id           BigInt   @id @default(autoincrement())
+  inquiry_id   BigInt
+  picture      String   @db.VarChar(255)
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  inquiry      inquiry  @relation(fields: [inquiry_id], references: [id], map: "InquiryPicture_inquiry_id_fkey")
+
+  @@index([inquiry_id], map: "InquiryPicture_inquiry_id_fkey")
+}
+
+model mission {
+  id             BigInt           @id @default(autoincrement())
+  store_id       BigInt
+  name           String           @db.VarChar(50)
+  payment        Int
+  point          Int
+  created_time   DateTime         @default(now()) @db.DateTime(6)
+  updated_time   DateTime         @default(now()) @db.DateTime(6)
+  store          store            @relation(fields: [store_id], references: [id], map: "Mission_store_id_fkey")
+  missionalert   missionalert[]
+  missioninquiry missioninquiry[]
+  usermission    usermission[]
+
+  @@index([store_id], map: "Mission_store_id_fkey")
+}
+
+model missionalert {
+  alert_id     BigInt
+  mission_id   BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  alert        alert    @relation(fields: [alert_id], references: [id], map: "MissionAlert_alert_id_fkey")
+  mission      mission  @relation(fields: [mission_id], references: [id], map: "MissionAlert_mission_id_fkey")
+
+  @@id([alert_id, mission_id])
+  @@index([mission_id], map: "MissionAlert_mission_id_fkey")
+}
+
+model missioninquiry {
+  inquiry_id   BigInt
+  mission_id   BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  inquiry      inquiry  @relation(fields: [inquiry_id], references: [id], map: "MissionInquiry_inquiry_id_fkey")
+  mission      mission  @relation(fields: [mission_id], references: [id], map: "MissionInquiry_mission_id_fkey")
+
+  @@id([inquiry_id, mission_id])
+  @@index([mission_id], map: "MissionInquiry_mission_id_fkey")
+}
+
+model preferfood {
+  user_id          BigInt
+  food_category_id BigInt
+  created_time     DateTime     @default(now()) @db.DateTime(6)
+  updated_time     DateTime     @default(now()) @db.DateTime(6)
+  foodcategory     foodcategory @relation(fields: [food_category_id], references: [id], map: "PreferFood_food_category_id_fkey")
+  user             user         @relation(fields: [user_id], references: [id], map: "PreferFood_user_id_fkey")
+
+  @@id([user_id, food_category_id])
+  @@index([food_category_id], map: "PreferFood_food_category_id_fkey")
+}
+
+model region {
+  id           BigInt   @id @default(autoincrement())
+  name         String   @db.VarChar(20)
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  store        store[]
+}
+
+model review {
+  id            BigInt          @id @default(autoincrement())
+  user_id       BigInt
+  store_id      BigInt
+  score         Int
+  text          String
+  created_time  DateTime        @default(now()) @db.DateTime(6)
+  updated_time  DateTime        @default(now()) @db.DateTime(6)
+  store         store           @relation(fields: [store_id], references: [id], map: "Review_store_id_fkey")
+  user          user            @relation(fields: [user_id], references: [id], map: "Review_user_id_fkey")
+  reviewalert   reviewalert[]
+  reviewinquiry reviewinquiry[]
+  userreview    userreview[]
+
+  @@index([store_id], map: "Review_store_id_fkey")
+  @@index([user_id], map: "Review_user_id_fkey")
+}
+
+model reviewalert {
+  alert_id     BigInt
+  review_id    BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  alert        alert    @relation(fields: [alert_id], references: [id], map: "ReviewAlert_alert_id_fkey")
+  review       review   @relation(fields: [review_id], references: [id], map: "ReviewAlert_review_id_fkey")
+
+  @@id([alert_id, review_id])
+  @@index([review_id], map: "ReviewAlert_review_id_fkey")
+}
+
+model reviewinquiry {
+  inquiry_id   BigInt
+  review_id    BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  inquiry      inquiry  @relation(fields: [inquiry_id], references: [id], map: "ReviewInquiry_inquiry_id_fkey")
+  review       review   @relation(fields: [review_id], references: [id], map: "ReviewInquiry_review_id_fkey")
+
+  @@id([inquiry_id, review_id])
+  @@index([review_id], map: "ReviewInquiry_review_id_fkey")
+}
+
+model store {
+  id               BigInt         @id @default(autoincrement())
+  name             String         @db.VarChar(50)
+  region_id        BigInt
+  food_category_id BigInt
+  created_time     DateTime       @default(now()) @db.DateTime(6)
+  updated_time     DateTime       @default(now())  @db.DateTime(6)
+  mission          mission[]
+  review           review[]
+  foodcategory     foodcategory   @relation(fields: [food_category_id], references: [id], map: "Store_food_category_id_fkey")
+  region           region         @relation(fields: [region_id], references: [id], map: "Store_region_id_fkey")
+  storepicture     storepicture[]
+
+  @@index([food_category_id], map: "Store_food_category_id_fkey")
+  @@index([region_id], map: "Store_region_id_fkey")
+}
+
+model storepicture {
+  id           BigInt   @id @default(autoincrement())
+  store_id     BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  store        store    @relation(fields: [store_id], references: [id], map: "StorePicture_store_id_fkey")
+
+  @@index([store_id], map: "StorePicture_store_id_fkey")
+}
+
+model term {
+  id           BigInt     @id @default(autoincrement())
+  user_id      BigInt
+  name         String     @db.VarChar(50)
+  term_url     String     @db.VarChar(255)
+  created_time DateTime   @default(now()) @db.DateTime(6)
+  updated_time DateTime   @default(now()) @db.DateTime(6)
+  essential    Boolean
+  user         user       @relation(fields: [user_id], references: [id], map: "Term_user_id_fkey")
+  userterm     userterm[]
+
+  @@index([user_id], map: "Term_user_id_fkey")
+}
+
+model user {
+  id            BigInt        @id @default(autoincrement())
+  name          String        @db.VarChar(20)
+  pw            String        @db.VarChar(100)
+  status        String?       @db.VarChar(10)
+  point         Int
+  provider      String        @default("local") @db.VarChar(20)
+  created_time  DateTime      @default(now()) @db.DateTime(6)
+  updated_time  DateTime      @default(now()) @db.DateTime(6)
+  inactive_date DateTime?     @db.DateTime(6)
+  inquiry       inquiry[]
+  preferfood    preferfood[]
+  review        review[]
+  term          term[]
+  useralert     useralert[]
+  userinfo      userinfo?
+  usermission   usermission[]
+  userreview    userreview[]
+  userterm      userterm[]
+  usertoken     usertoken[]
+}
+
+model useralert {
+  user_id      BigInt
+  alert_id     BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  alert        alert    @relation(fields: [alert_id], references: [id], map: "UserAlert_alert_id_fkey")
+  user         user     @relation(fields: [user_id], references: [id], map: "UserAlert_user_id_fkey")
+
+  @@id([user_id, alert_id])
+  @@index([alert_id], map: "UserAlert_alert_id_fkey")
+}
+
+model userinfo {
+  id                     BigInt   @id @default(autoincrement())
+  user_id                BigInt   @unique(map: "UserInfo_user_id_key")
+  profile_picture_url    String   @db.VarChar(255)
+  email                  String   @db.VarChar(20)
+  locate                 String   @db.VarChar(20)
+  gender                 Int
+  birth                  String   @db.VarChar(20)
+  phone_num              String   @db.VarChar(20)
+  phone_num_certificated Boolean
+  nickname               String?  @default("NICKNAME123") @db.VarChar(50)
+  created_time           DateTime @default(now()) @db.DateTime(6)
+  updated_time           DateTime @default(now()) @db.DateTime(6)
+  user                   user     @relation(fields: [user_id], references: [id], map: "UserInfo_user_id_fkey")
+}
+
+model usermission {
+  user_id      BigInt
+  mission_id   BigInt
+  is_completed Boolean
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  mission      mission  @relation(fields: [mission_id], references: [id], map: "UserMission_mission_id_fkey")
+  user         user     @relation(fields: [user_id], references: [id], map: "UserMission_user_id_fkey")
+
+  @@id([user_id, mission_id])
+  @@index([mission_id], map: "UserMission_mission_id_fkey")
+}
+
+model userreview {
+  user_id      BigInt
+  review_id    BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  review       review   @relation(fields: [review_id], references: [id], map: "UserReview_review_id_fkey")
+  user         user     @relation(fields: [user_id], references: [id], map: "UserReview_user_id_fkey")
+
+  @@id([user_id, review_id])
+  @@index([review_id], map: "UserReview_review_id_fkey")
+}
+
+model userterm {
+  user_id      BigInt
+  term_id      BigInt
+  created_time DateTime @default(now()) @db.DateTime(6)
+  updated_time DateTime @default(now()) @db.DateTime(6)
+  agreed       Boolean
+  term         term     @relation(fields: [term_id], references: [id], map: "UserTerm_term_id_fkey")
+  user         user     @relation(fields: [user_id], references: [id], map: "UserTerm_user_id_fkey")
+
+  @@id([user_id, term_id])
+  @@index([term_id], map: "UserTerm_term_id_fkey")
+}
+
+model usertoken {
+  id            BigInt   @id @default(autoincrement())
+  user_id       BigInt
+  access_token  String   @db.VarChar(255)
+  refresh_token String   @db.VarChar(255)
+  created_time  DateTime @default(now()) @db.DateTime(6)
+  updated_time  DateTime @default(now()) @db.DateTime(6)
+  category      String   @db.VarChar(50)
+  user          user     @relation(fields: [user_id], references: [id], map: "UserToken_user_id_fkey")
+
+  @@index([user_id], map: "UserToken_user_id_fkey")
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.VarChar(512)
+  expiresAt DateTime @map("expires_at")
+
+  @@map("session")
+}

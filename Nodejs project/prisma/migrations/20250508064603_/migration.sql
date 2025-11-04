@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `store` MODIFY `updated_time` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6);
