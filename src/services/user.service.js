@@ -23,26 +23,26 @@ export const userSignUp = async (userData) => {
 
     // 2. 사용자 정보 삽입 (Repository 호출)
     // userRepo.addUser 함수가 user_id를 반환한다고 가정
-    const userId = await userRepo.addUser(userData);
+    const user_id = await userRepo.addUser(userData);
 
     // 3. 선호 카테고리 삽입 (Repository 호출)
     const preferences = [];
     if (userData.food_ids && userData.food_ids.length > 0) {
-        for (const foodId of userData.food_ids) {
+        for (const food_id of userData.food_ids) {
             // userRepo.insertUserPreference 함수가 user_preference 테이블에 데이터를 삽입한다고 가정
-            await userRepo.insertUserPreference(userId, foodId);
-            preferences.push({ food_id: foodId }); // 응답 데이터 구성을 위한 임시 배열
+            await userRepo.insertUserPreference(user_id, food_id);
+            preferences.push({ food_id: food_id }); // 응답 데이터 구성을 위한 임시 배열
         }
     }
     
     // 4. 응답 데이터 구성 및 반환 (필요한 정보를 DB에서 다시 조회할 수도 있음)
     // 여기서는 삽입된 ID와 함께 필요한 최소 정보만 반환합니다.
     return {
-        user_id: userId,
+        user_id: user_id,
         email: userData.email,
         preferences: preferences,
         message: "회원가입 및 선호 카테고리 설정 성공"
     };
 };
 
-// 💡 user.repository.js 파일에는 insertUserPreference 함수가 추가되어야 합니다.
+//  user.repository.js 파일에는 insertUserPreference 함수가 추가되어야 합니다.

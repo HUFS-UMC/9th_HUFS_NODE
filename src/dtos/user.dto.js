@@ -10,7 +10,7 @@ export const bodyToUser = (body) => {
     return {
         // 필수 값
         email: body.email, 
-        password: body.password, // 💡 Service에서 해싱 처리 예정
+        password: body.password, //  Service에서 해싱 처리 예정
         gender: body.gender,     
         birth_date: birthDate,   
         
@@ -28,13 +28,13 @@ export const bodyToUser = (body) => {
  */
 export const responseFromUser = (user, preferences) => {
     return {
-        userId: user.user_id, 
+        user_id: user.user_id, 
         email: user.email,    
         gender: user.gender,
         
         // 선호 음식 목록 가공
         preferences: preferences.map(pref => ({
-            foodId: pref.food_id, 
+            food_id: pref.food_id, 
             foodName: pref.name,  
         })),
     };

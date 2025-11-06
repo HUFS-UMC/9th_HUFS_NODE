@@ -28,11 +28,11 @@ app.post("/api/v1/users/signup", handleUserSignUp);
 app.post("/api/v1/stores", handleCreateStore);
 
 // 리뷰 관련
-app.post("/api/v1/stores/:storeId/reviews", handleCreateReview);
+app.post("/api/v1/stores/:store_id/reviews", handleCreateReview);
 
 // 미션 관련
-app.post("/api/v1/stores/:storeId/missions", handleCreateMission);
-app.post("/api/v1/users/challenges/:missionId", handleChallengeMission);
+app.post("/api/v1/stores/:store_id/missions", handleCreateMission);
+app.post("/api/v1/users/challenges/:mission_id", handleChallengeMission);
 
 // 서버 리스닝
 app.listen(port, () => {

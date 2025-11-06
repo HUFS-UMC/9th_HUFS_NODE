@@ -8,7 +8,7 @@ import { pool } from '../db.config.js';
  */
 export const insertMission = async (missionData) => {
 
-    // ✅ 어떤 값이 들어오는지 로그로 확인 (디버깅용)
+    //  어떤 값이 들어오는지 로그로 확인 (디버깅용)
     console.log("[insertMission] missionData:", missionData);
 
     const [result] = await pool.execute(
@@ -52,7 +52,7 @@ export const isMissionChallenged = async (userId, missionId) => {
  */
 export const insertChallenge = async (userId, missionId) => {
 
-    // ✅ 로그 출력
+    // 로그 출력
     console.log(`[insertChallenge] userId=${userId}, missionId=${missionId}`);
 
     const [result] = await pool.execute(

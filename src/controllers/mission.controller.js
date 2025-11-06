@@ -7,11 +7,11 @@ import { createMission, challengeMission } from "../services/mission.service.js"
  * [CONTROLLER] 1-3. 미션 추가 (POST /api/v1/stores/:storeId/missions)
  */
 export const handleCreateMission = async (req, res, next) => {
-    const storeId = req.params.storeId;
+    const store_id = req.params.store_id;
     
     try {
         const missionData = bodyToMission(req.body);
-        const result = await createMission(storeId, missionData);
+        const result = await createMission(store_id, missionData);
         
         res.status(StatusCodes.CREATED).json({ 
             isSuccess: true,
@@ -28,11 +28,11 @@ export const handleCreateMission = async (req, res, next) => {
  * [CONTROLLER] 1-4. 미션 도전하기 (POST /api/v1/users/challenges/:missionId)
  */
 export const handleChallengeMission = async (req, res, next) => {
-    const missionId = req.params.missionId; 
-    const userId = 1; // 미션 요구사항: DB의 첫 번째 사용자(ID=1) 가정
+    const mission_id = req.params.mission_id; 
+    const user_id = 1; // 미션 요구사항: DB의 첫 번째 사용자(ID=1) 가정
     
     try {
-        const result = await challengeMission(userId, missionId);
+        const result = await challengeMission(user_id, mission_id);
         
         res.status(StatusCodes.CREATED).json({ 
             isSuccess: true,
