@@ -1,5 +1,6 @@
 // src/repositories/mission.repository.js
 import { pool } from '../db.config.js';
+import { prisma } from "../db.config.js";
 
 /**
  * [REPO] 미션 정보를 mission 테이블에 삽입합니다. (1-3 미션)

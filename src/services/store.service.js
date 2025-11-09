@@ -1,6 +1,6 @@
 // src/services/store.service.js
 
-// 💡 수정: address.repository.js에서 필요한 함수를 명시적으로 가져옵니다.
+//  수정: address.repository.js에서 필요한 함수를 명시적으로 가져옵니다.
 import { findAddressId, insertAddress } from "../repositories/address.repository.js"; 
 import * as storeRepo from "../repositories/store.repository.js";
 
@@ -22,4 +22,15 @@ export const createStore = async ({ storeData, addressData }) => {
     const storeId = await storeRepo.insertStore(storeData, addressId);
 
     return { storeId, addressId };
+};
+
+
+import { getAllStoreReviews } from '../repositories/store.repository.js';
+import { responseFromReviews } from '../dtos/store.dto.js';
+
+
+//리뷰 조회 함수 Service에서는 단순히 Repository를 호출하고, 이를 DTO로 변환해 반환하는 로직을 구현할 거예요.
+export const listStoreReviews = async (store_id) => {
+  const reviews = await getAllStoreReviews(store_id);
+  return responseFromReviews(reviews);
 };

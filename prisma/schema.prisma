@@ -1,0 +1,204 @@
+// schema.prisma
+
+// prisma generate 시 클라이언트 코드 생성
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 데이터베이스 연결 정보
+datasource db {
+  provider = "mysql"
+  // .env 파일의 DATABASE_URL 환경 변수를 사용한다.
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// DB 모델 정의 시작
+// ----------------------------------------------------
+
+// 주소 (Address)
+model Address {
+  address_id    Int      @id @default(autoincrement())
+  zip_code      Int
+  state_province String @db.VarChar(100)
+  city_county   String @db.VarChar(100)
+  town_village  String @db.VarChar(100)
+  street_name   String @db.VarChar(100)
+  building_number String @db.VarChar(20)
+  detail        String @db.VarChar(100)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+  
+  // 관계 (1:N)
+  Store         Store[]
+  Review        Review[]
+  User_Address  User_Address[]
+  
+  @@map("address") // 테이블 이름을 'address'로 명시
+}
+
+// 사용자정보 (User)
+model User {
+  user_id       Int      @id @default(autoincrement())
+  user_name     String @db.VarChar(255)
+  email         String @unique @db.VarChar(255)
+  gender        UserGender @default(u) // ENUM 타입은 별도로 정의
+  password      String @db.VarChar(255)
+  birth_date    DateTime @db.Date // DATE 타입 지정
+  
+  // NOTE: DB 스키마에 NOT NULL 제약이 있으므로, Prisma도 non-nullable로 설정.
+  // 실제 사용 시 NULL이 가능하도록 하려면 DB 스키마를 수정해야 한다.
+  withdrawal_request_time DateTime
+  withdrawal_due_time     DateTime
+
+  created_at    DateTime
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // 관계 (1:N)
+  Review        Review[]
+  User_Address  User_Address[]
+  User_Preference User_Preference[]
+  User_Mission  User_Mission[]
+  
+  @@map("user")
+}
+
+// User.gender ENUM 타입 정의
+enum UserGender {
+  m
+  f
+  u
+}
+
+// 식당정보 (Store)
+model Store {
+  store_id      Int      @id @default(autoincrement())
+  address_id    Int
+  store_name    String @db.VarChar(100)
+  store_info    String @db.VarChar(300)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+  
+  // 외래 키 관계 (fk_store_address)
+  Address       Address @relation(fields: [address_id], references: [address_id])
+
+  // 관계 (1:N)
+  Review        Review[]
+  Store_Food    Store_Food[]
+  
+  @@map("store")
+}
+
+// 리뷰 (Review)
+model Review {
+  review_id     Int      @id @default(autoincrement())
+  store_id      Int
+  address_id    Int
+  user_id       Int
+  title         String @db.VarChar(100)
+  content       String @db.VarChar(1000)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // 외래 키 관계
+  Store         Store @relation(fields: [store_id], references: [store_id])
+  Address       Address @relation(fields: [address_id], references: [address_id])
+  User          User @relation(fields: [user_id], references: [user_id])
+  
+  @@map("review")
+}
+
+// 사용자별주소 (User_Address)
+model User_Address {
+  user_id       Int
+  address_id    Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+  
+  // 복합 기본 키
+  @@id([user_id, address_id])
+
+  // 외래 키 관계
+  User          User @relation(fields: [user_id], references: [user_id])
+  Address       Address @relation(fields: [address_id], references: [address_id])
+  
+  @@map("user_address")
+}
+
+// 선호음식종류 (Food_Category)
+model Food_Category {
+  food_id       Int      @id @default(autoincrement())
+  name          String @db.VarChar(50)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // 관계 (1:N)
+  User_Preference User_Preference[]
+  Store_Food      Store_Food[]
+  
+  @@map("food_category")
+}
+
+// 유저선호도 (User_Preference)
+model User_Preference {
+  food_id       Int
+  user_id       Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // 복합 기본 키
+  @@id([food_id, user_id])
+
+  // 외래 키 관계
+  Food_Category Food_Category @relation(fields: [food_id], references: [food_id])
+  User          User @relation(fields: [user_id], references: [user_id])
+  
+  @@map("user_preference")
+}
+
+// 식당_음식 (Store_Food)
+model Store_Food {
+  store_id      Int
+  food_id       Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // 복합 기본 키
+  @@id([store_id, food_id])
+
+  // 외래 키 관계
+  Store         Store @relation(fields: [store_id], references: [store_id])
+  Food_Category Food_Category @relation(fields: [food_id], references: [food_id])
+  
+  @@map("store_food")
+}
+
+// 미션 (Mission)
+model Mission {
+  mission_id    Int      @id @default(autoincrement())
+  mission_name  String @db.VarChar(50)
+  mission_content String @db.Text // TEXT 타입 지정
+  mission_period DateTime // DATETIME NOT NULL
+
+  // 관계 (1:N)
+  User_Mission  User_Mission[]
+  
+  @@map("mission")
+}
+
+// 사용자별미션 (User_Mission)
+model User_Mission {
+  mission_id    Int
+  user_id       Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
+  // 복합 기본 키
+  @@id([mission_id, user_id])
+
+  // 외래 키 관계
+  Mission       Mission @relation(fields: [mission_id], references: [mission_id])
+  User          User @relation(fields: [user_id], references: [user_id])
+  
+  @@map("user_mission")
+}

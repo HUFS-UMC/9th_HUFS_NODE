@@ -8,19 +8,29 @@
 export const bodyToStore = (body) => {
     // [1] store 테이블 컬럼명에 맞춥니다.
     const storeData = {
-        store_name: body.storeName, // 가게이름
-        store_info: body.storeInfo, // 가게정보
+        store_name: body.store_name, // 가게이름
+        store_info: body.store_info, // 가게정보
     };
 
     // [2] address 테이블 컬럼명에 맞춥니다.
     const addressData = {
-        zip_code: body.zipCode,
-        state_province: body.stateProvince, // 시도
-        city_county: body.cityCounty,       // 구군
-        town_village: body.townVillage,     // 동리
-        street_name: body.streetName,
-        building_number: body.buildingNumber,
+        zip_code: body.zip_code,
+        state_province: body.state_province, // 시도
+        city_county: body.city_county,       // 구군
+        town_village: body.town_village,     // 동리
+        street_name: body.street_name,
+        building_number: body.building_number,
         detail: body.detail || "",          // 상세정보 (선택적)
     };
     return { storeData, addressData };
+};
+
+
+export const responseFromReviews = (reviews) => {  //리뷰조회 함수
+  return {
+    data: reviews,
+    pagination: {
+      cursor: reviews.length ? reviews[reviews.length - 1].id : null,
+    },
+  };
 };

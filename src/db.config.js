@@ -14,3 +14,8 @@ export const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
+
+
+import { PrismaClient } from "@prisma/client";
+
+export const prisma = new PrismaClient();

@@ -1,12 +1,13 @@
 // src/repositories/user.repository.js
-import { pool } from '../db.config.js'; // 💡 pool 대신 getPool을 import
+import { pool } from '../db.config.js'; //  pool 대신 getPool을 import
+import { prisma } from "../db.config.js";
 
 /**
  * [REPO] 새로운 사용자를 user 테이블에 삽입하고 생성된 ID를 반환합니다.
  */
 export const addUser = async (userData) => {
 
-    // ... (이하 쿼리 로직) ...
+
     const [result] = await pool.execute(
         `INSERT INTO user (email, password, gender, birth_date, withdrawal_request_time, withdrawal_due_time) 
          VALUES (?, ?, ?, ?, ?, ?)`,
@@ -49,7 +50,7 @@ export const isMissionChallenged = async (userId, missionId) => {
  * [REPO] 사용자별 미션 도전 정보를 user_mission 테이블에 삽입합니다. (1-4 미션)
  */
 export const insertChallenge = async (userId, missionId) => {
-    const pool = getPool(); // 💡 pool 객체를 getPool() 함수로 가져옵니다.
+    const pool = getPool(); //  pool 객체를 getPool() 함수로 가져옵니다.
     const [result] = await pool.execute(
         `INSERT INTO user_mission (user_id, mission_id) VALUES (?, ?)`,
         [userId, missionId]

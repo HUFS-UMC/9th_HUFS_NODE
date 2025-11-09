@@ -1,5 +1,7 @@
 // src/repositories/review.repository.js
 import { pool } from '../db.config.js';
+import { prisma } from '../db.config.js';
+
 
 export const insertReview = async (reviewData) => {
     // 수정된 부분: Object.values() 대신 명시적으로 순서를 지정합니다.
@@ -18,4 +20,30 @@ export const insertReview = async (reviewData) => {
     );
 
     return result.insertId;
+};
+
+export const getAllUserReviews = async (user_id, cursor) => {
+    // cursor는 내가 설정한 대로 review_id를 사용한다고 가정한다.
+    const reviews = await prisma.review.findMany({
+        // 네 DB 구조에 맞게 select 필드를 지정해라.
+        select: { 
+            review_id: true, 
+            content: true, 
+            store_id: true, 
+            user_id: true,
+            // 필요한 경우, store 정보도 include 할 수 있다.
+            // store: { select: { name: true } }
+        },
+        where: { 
+            // 🚨 핵심: store_id 대신 user_id로 필터링한다.
+            user_id: user_id, 
+            review_id: { gt: cursor } 
+        },
+        orderBy: { 
+            review_id: "desc" // 최신순 조회를 위해 보통 desc를 사용함.
+        },
+        take: 5, 
+    });
+
+    return reviews;
 };
