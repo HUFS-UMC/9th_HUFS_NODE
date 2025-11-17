@@ -7,6 +7,8 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 
 // ✅ src 폴더 포함해서 경로 수정
 import { handleUserSignUp } from './src/controllers/user.controller.js';
@@ -27,6 +29,10 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(morgan('dev'));
+app.use(cookieParser()); 
+
 
 // 사용자 라우트
 app.post("/api/v1/users/signup", handleUserSignUp);
@@ -60,3 +66,24 @@ app.get("/api/v1/users/:user_id/missions/active", /* authenticateUser, */ handle
 
 // 미션 완료 처리
 app.patch("/api/v1/users/:user_id/missions/:mission_id/complete", /* authenticateUser, */ handleCompleteMission);
+
+
+// 쿠키 만드는 라우터 
+app.get('/setcookie', (req, res) => {
+    // 'myCookie'라는 이름으로 'hello' 값을 가진 쿠키를 생성
+    res.cookie('myCookie', 'hello', { maxAge: 60000 }); // 60초간 유효
+    res.send('쿠키가 생성되었습니다!');
+});
+
+// 쿠키 읽는 라우터 
+app.get('/getcookie', (req, res) => {
+    // cookie-parser 덕분에 req.cookies 객체에서 바로 꺼내 쓸 수 있음
+    const myCookie = req.cookies.myCookie; 
+    
+    if (myCookie) {
+        console.log(req.cookies); // { myCookie: 'hello' }
+        res.send(`당신의 쿠키: ${myCookie}`);
+    } else {
+        res.send('쿠키가 없습니다.');
+    }
+});
