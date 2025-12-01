@@ -1,0 +1,5 @@
+NODE.js 깃허브 관련 스터디 파일 작성방법
+
+1. (닉네임)/Week_(현재 주차) 형태로 branch 생성
+2. 자신이 작성한 과제 or 코드 파일을 push
+3. 주차에 맞는 Week_(현재 주차) branch로 pullRequest (!! main 아님 !!)
